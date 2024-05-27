@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Döner Bestellung</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1 class="center-align">Döner Bestellung</h1>
+            {% if settings.order_deadline %}
+            <p class="center-align">Bestellschlusszeit: {{ settings.order_deadline.strftime('%H:%M') }}</p>
+            {% endif %}
+        </header>
+        {% if not settings.ordering_enabled %}
+        <div class="row">
+            <div class="col s12">
+                <p class="red-text center-align">Bestellungen sind momentan deaktiviert.</p>
+            </div>
+        </div>
+        {% elif settings.order_deadline and now > settings.order_deadline %}
+        <div class="row">
+            <div class="col s12">
+                <p class="red-text center-align">Bestellungen sind nach {{ settings.order_deadline.strftime('%H:%M') }} nicht mehr möglich.</p>
+            </div>
+        </div>
+        {% else %}
+        <form action="{{ url_for('order') }}" method="POST" class="col s12">
+            <div class="row">
+                <div class="input-field col s12">
+                    <input id="name" name="name" type="text" class="validate" required>
+                    <label for="name">Kürzel</label>
+                </div>
+            </div>
+            <div id="items">
+                <div class="row">
+                    <div class="input-field col s4">
+                        <select name="item">
+                            {% for item in menu %}
+                                <option value="{{ item.name }}">{{ item.name }} - Klein: {{ item.price_small }}€, Mittel: {{ item.price_medium }}€, Groß: {{ item.price_large }}€</option>
+                            {% endfor %}
+                        </select>
+                        <label>Bestellung</label>
+                    </div>
+                    <div class="input-field col s4">
+                        <select name="size">
+                            <option value="klein">Klein</option>
+                            <option value="mittel">Mittel</option>
+                            <option value="groß">Groß</option>
+                        </select>
+                        <label>Größe</label>
+                    </div>
+                    <div class="input-field col s4">
+                        <textarea name="extra_wishes" class="materialize-textarea"></textarea>
+                        <label>Extrawünsche</label>
+                    </div>
+                </div>
+            </div>
+            <div class="row center-align">
+                <button type="button" class="btn waves-effect waves-light" onclick="addItem()">Artikel hinzufügen
+                    <i class="material-icons right">add</i>
+                </button>
+            </div>
+            <div class="row">
+                <div class="input-field col s12">
+                    <select id="payment_method" name="payment_method">
+                        <option value="Bar">Bar</option>
+                        <option value="PayPal">PayPal</option>
+                        <option value="Überweisung">Überweisung</option>
+                    </select>
+                    <label for="payment_method">Zahlungsmethode</label>
+                </div>
+            </div>
+            <div class="row center-align">
+                <button class="btn waves-effect waves-light" type="submit">Bestellen
+                    <i class="material-icons right">send</i>
+                </button>
+            </div>
+        </form>
+        {% endif %}
+        <footer class="page-footer">
+            <div class="container">
+                <div class="row">
+                    <div class="col s12 center-align">
+                        <p>Made with ♥️ by Azubis</p>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var elems = document.querySelectorAll('select');
+            M.FormSelect.init(elems);
+        });
+
+        function addItem() {
+            var itemTemplate = `
+                <div class="row">
+                    <div class="input-field col s4">
+                        <select name="item">
+                            {% for item in menu %}
+                                <option value="{{ item.name }}">{{ item.name }} - Klein: {{ item.price_small }}€, Mittel: {{ item.price_medium }}€, Groß: {{ item.price_large }}€</option>
+                            {% endfor %}
+                        </select>
+                        <label>Bestellung</label>
+                    </div>
+                    <div class="input-field col s4">
+                        <select name="size">
+                            <option value="klein">Klein</option>
+                            <option value="mittel">Mittel</option>
+                            <option value="groß">Groß</option>
+                        </select>
+                        <label>Größe</label>
+                    </div>
+                    <div class="input-field col s4">
+                        <textarea name="extra_wishes" class="materialize-textarea"></textarea>
+                        <label>Extrawünsche</label>
+                    </div>
+                </div>
+            `;
+            var container = document.getElementById('items');
+            var div = document.createElement('div');
+            div.innerHTML = itemTemplate;
+            container.appendChild(div);
+            var elems = div.querySelectorAll('select');
+            M.FormSelect.init(elems);
+            var textAreas = div.querySelectorAll('.materialize-textarea');
+            M.CharacterCounter.init(textAreas);
+        }
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+</body>
+</html>

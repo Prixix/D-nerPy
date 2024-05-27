@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bestellung aufgeben</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <h1>Bestellung aufgeben</h1>
+    <form action="{{ url_for('order') }}" method="POST">
+        <label for="name">Kürzel:</label>
+        <input type="text" id="name" name="name" required>
+        
+        <label for="item">Bestellung:</label>
+        <select id="item" name="item">
+            {% for item in menu %}
+                <option value="{{ item.name }}">{{ item.name }}</option>
+            {% endfor %}
+        </select>
+        
+        <label for="payment_method">Zahlungsmethode:</label>
+        <select id="payment_method" name="payment_method">
+            <option value="Bar">Bar</option>
+            <option value="PayPal">PayPal</option>
+            <option value="Überweisung">Überweisung</option>
+        </select>
+        
+        <button type="submit">Bestellen</button>
+    </form>
+    <a href="{{ url_for('index') }}">Zurück zur Startseite</a>
+</body>
+</html>
