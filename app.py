@@ -14,7 +14,7 @@ db = SQLAlchemy(app)
 class Order(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(50), nullable=False)
-    items = db.relationship('OrderItem', backref='order', lazy=True)
+    items = db.relationship('OrderItem', backref='order', lazy=True, cascade="all, delete-orphan")
     payment_method = db.Column(db.String(20), nullable=False)
     paid = db.Column(db.Boolean, default=False)
 
@@ -111,6 +111,16 @@ def mark_paid(order_id):
     
     order = Order.query.get(order_id)
     order.paid = True
+    db.session.commit()
+    return redirect(url_for('admin_dashboard'))
+
+@app.route('/admin/delete_order/<int:order_id>', methods=['POST'])
+def delete_order(order_id):
+    if not session.get('admin_logged_in'):
+        return redirect(url_for('admin'))
+    
+    order = Order.query.get(order_id)
+    db.session.delete(order)
     db.session.commit()
     return redirect(url_for('admin_dashboard'))
 

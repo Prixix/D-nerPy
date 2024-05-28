@@ -62,7 +62,12 @@
                             <td>{{ order.payment_method }}</td>
                             <td>{{ 'Ja' if order.paid else 'Nein' }}</td>
                             <td>{{ order.items|map(attribute='price')|map('float')|sum }}€</td>
-                            <td><a href="{{ url_for('mark_paid', order_id=order.id) }}" class="btn-small waves-effect waves-light">Als bezahlt markieren</a></td>
+                            <td>
+                                <a href="{{ url_for('mark_paid', order_id=order.id) }}" class="btn-small waves-effect waves-light">Als bezahlt markieren</a>
+                                <form action="{{ url_for('delete_order', order_id=order.id) }}" method="POST" style="display:inline;">
+                                    <button class="btn-small red waves-effect waves-light" type="submit">Löschen</button>
+                                </form>
+                            </td>
                         </tr>
                         {% endfor %}
                     </tbody>
