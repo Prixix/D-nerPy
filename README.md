@@ -9,4 +9,3 @@ Diese Applikation ermöglicht es den Benutzern, Döner-Bestellungen aufzugeben, 
 - Admin-Panel mit Passwortschutz (Passwort: "azubi")
 - Bestellungsstatus (bezahlt/unbezahlt) verwalten
 - Bestellschlusszeit festlegen und Bestellungen nur innerhalb dieses Zeitraums zulassen
-- Speisekarte als PDF hochladen und automatisch verarbeiten

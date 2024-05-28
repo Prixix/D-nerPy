@@ -3,5 +3,3 @@ services:
     build: .
     ports:
       - "5555:5000"
-  redis:
-    image: "redis:alpine"

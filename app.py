@@ -2,11 +2,6 @@ import os
 from datetime import datetime
 from flask import Flask, render_template, request, redirect, url_for, session
 from flask_sqlalchemy import SQLAlchemy
-from pdf2image import convert_from_path
-import pytesseract
-
-# Set the path to the Tesseract executable
-pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///orders.db'
@@ -133,20 +128,6 @@ def add_menu_item():
     db.session.commit()
     return redirect(url_for('admin_dashboard'))
 
-@app.route('/admin/upload_menu', methods=['GET', 'POST'])
-def upload_menu():
-    if not session.get('admin_logged_in'):
-        return redirect(url_for('admin'))
-    
-    if request.method == 'POST' and 'menu_pdf' in request.files:
-        file = request.files['menu_pdf']
-        if file and file.filename.endswith('.pdf'):
-            file_path = os.path.join(app.config['UPLOAD_FOLDER'], file.filename)
-            file.save(file_path)
-            extract_menu_items(file_path)
-            return redirect(url_for('admin_dashboard'))
-    return render_template('upload_menu.html')
-
 @app.route('/admin/toggle_ordering', methods=['POST'])
 def toggle_ordering():
     if not session.get('admin_logged_in'):
@@ -170,24 +151,6 @@ def set_order_deadline():
         settings.order_deadline = None
     db.session.commit()
     return redirect(url_for('admin_dashboard'))
-
-def extract_menu_items(pdf_path):
-    pages = convert_from_path(pdf_path)
-    for page in pages:
-        text = pytesseract.image_to_string(page, lang='deu')  # Assuming the menu is in German
-        process_text(text)
-
-def process_text(text):
-    lines = text.split('\n')
-    for line in lines:
-        if line.strip():
-            parts = line.split(' ')
-            name = ' '.join(parts[:-3])
-            prices = parts[-3:]
-            if all(p.replace(',', '').replace('.', '').isdigit() for p in prices):  # Simple check for price format
-                new_item = MenuItem(name=name.strip(), price_small=prices[0].strip(), price_medium=prices[1].strip(), price_large=prices[2].strip())
-                db.session.add(new_item)
-    db.session.commit()
 
 if __name__ == '__main__':
     app.run(debug=True)
